@@ -1,0 +1,3 @@
+<apex:page standardController="Quote" extensions="OverrideApprovalExtension" action="{!overrideApproval}">
+  <!-- This page is only used to call the action -->
+</apex:page>
