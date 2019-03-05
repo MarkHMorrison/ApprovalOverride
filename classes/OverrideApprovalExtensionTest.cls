@@ -12,7 +12,6 @@ private class OverrideApprovalExtensionTest {
     insert testAccount;
     System.assertNotEquals(null, testAccount.Id);
 
-    // Create Opportunity with propper settings to allow for Approval process conditions
     Opportunity testOpportunity = new Opportunity(
       Name = 'Test Opportunity',
       AccountId = testAccount.Id,
@@ -23,10 +22,20 @@ private class OverrideApprovalExtensionTest {
     insert testOpportunity;
     System.assertNotEquals(null, testOpportunity.Id);
 
-    // Test requires that there is an active Approval process on Opportunity
-    // Create an approval request for the Opportunity
+    // Create Quote with propper settings to allow for Approval process conditions
+    Quote testQuote = new Quote(
+      Name = 'Test Quote',
+      OpportunityId = testOpportunity.Id,
+      ExpirationDate = System.today().addDays(5),
+      Tax = 100
+    );
+    insert testQuote;
+    System.assertNotEquals(null, testQuote.Id);
+
+    // Test requires that there is an active Approval process on Quote
+    // Create an approval request for the Quote
     Approval.ProcessSubmitRequest submitRequest = new Approval.ProcessSubmitrequest();
-    submitRequest.setObjectId(testOpportunity.Id);
+    submitRequest.setObjectId(testQuote.Id);
     // Submit the ProcessSubmitRequest and get a result
     Approval.ProcessResult result = Approval.process(submitRequest);
     // Verify that the results are as expected
@@ -42,12 +51,12 @@ private class OverrideApprovalExtensionTest {
 
   @isTest
   static void testOverrideApprovalExtension() {
-    Opportunity opportunity = [SELECT Id FROM Opportunity WHERE Name = 'Test Opportunity' LIMIT 1];
+    Quote testQuote = [SELECT Id FROM Quote WHERE Name = 'Test quote' LIMIT 1];
 
     Test.startTest();
-      // Setup page with Opportunity data
-      ApexPages.CurrentPage().getparameters().put('id', opportunity.Id);     
-      Apexpages.StandardController standardController = new Apexpages.StandardController(opportunity);
+      // Setup page with testQuote data
+      ApexPages.CurrentPage().getparameters().put('id', testQuote.Id);     
+      Apexpages.StandardController standardController = new Apexpages.StandardController(testQuote);
       OverrideApprovalExtension overrideApprovalExtension = new OverrideApprovalExtension(standardController);
       // Now call the method
       overrideApprovalExtension.overrideApproval();
@@ -55,7 +64,7 @@ private class OverrideApprovalExtensionTest {
 
     System.assert([
         SELECT Id FROM ProcessInstanceWorkitem 
-        WHERE ProcessInstance.TargetObjectId = :opportunity.Id
+        WHERE ProcessInstance.TargetObjectId = :testQuote.Id
       ].size() == 0
     );
   }
