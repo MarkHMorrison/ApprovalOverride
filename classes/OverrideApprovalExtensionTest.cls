@@ -16,8 +16,7 @@ private class OverrideApprovalExtensionTest {
       Name = 'Test Opportunity',
       AccountId = testAccount.Id,
       StageName = 'Pending',
-      CloseDate = System.today().addDays(5),
-      Discount_Percentage__c = 50
+      CloseDate = System.today().addDays(5)
     );
     insert testOpportunity;
     System.assertNotEquals(null, testOpportunity.Id);
